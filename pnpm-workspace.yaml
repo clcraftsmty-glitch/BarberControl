@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - esbuild
+nodeLinker: hoisted
+packageImportMethod: copy
+allowBuilds:
+  esbuild: set this to true or false

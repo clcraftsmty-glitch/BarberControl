@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none !important;
+}
+
+::selection {
+    background: #be123c;
+    color: #fff;
+}
+
+.fc {
+    --fc-border-color: #e2e8f0;
+    --fc-button-bg-color: #0f172a;
+    --fc-button-border-color: #0f172a;
+    --fc-button-hover-bg-color: #1e293b;
+    --fc-button-hover-border-color: #1e293b;
+    --fc-button-active-bg-color: #be123c;
+    --fc-button-active-border-color: #be123c;
+    --fc-today-bg-color: #fff1f2;
+    font-size: 0.875rem;
+}
+
+.fc .fc-toolbar-title {
+    color: #0f172a;
+    font-size: 1.125rem;
+    font-weight: 800;
+}
+
+.fc .fc-button {
+    border-radius: 0.65rem;
+    font-weight: 700;
+}
+
+.fc .fc-event {
+    border-radius: 0.5rem;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+@media (max-width: 767px) {
+    .fc .fc-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .fc .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+    }
+}
