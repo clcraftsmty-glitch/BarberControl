@@ -51,4 +51,9 @@ class Service extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+
+    public function walkInEntries(): HasMany
+    {
+        return $this->hasMany(WalkInEntry::class);
+    }
 }

@@ -28,4 +28,13 @@ class ClientFactory extends Factory
     {
         return $this->state(fn (): array => ['is_active' => false]);
     }
+
+    public function whatsappOptedIn(): static
+    {
+        return $this->state(fn (): array => [
+            'whatsapp_opt_in' => true,
+            'whatsapp_opt_in_at' => now(),
+            'whatsapp_opt_out_at' => null,
+        ]);
+    }
 }

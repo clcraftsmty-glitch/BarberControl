@@ -2,8 +2,13 @@
 
 namespace App\Livewire\Forms;
 
+use App\Enums\UserAccessEvent;
+use App\Enums\UserRole;
+use App\Models\User;
+use App\Services\UserAccessLogger;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -30,15 +35,38 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+        if (! Auth::attempt([
+            'email' => $this->email,
+            'password' => $this->password,
+            'is_active' => true,
+        ], $this->remember)) {
+            $user = User::query()->where('email', mb_strtolower(trim($this->email)))->first();
+            $event = $user && ! $user->is_active && Hash::check($this->password, $user->password)
+                ? UserAccessEvent::BlockedLogin
+                : UserAccessEvent::FailedLogin;
+            app(UserAccessLogger::class)->record($event, $user, email: mb_strtolower(trim($this->email)));
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'form.email' => trans('auth.failed'),
+                'form.email' => $event === UserAccessEvent::BlockedLogin
+                    ? 'Esta cuenta está suspendida. Contacta a un administrador.'
+                    : trans('auth.failed'),
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
+        /** @var User $user */
+        $user = Auth::user();
+        if ($user->role === UserRole::Administrator && config('security.two_factor.enabled')) {
+            session()->put('two_factor_pending_user_id', $user->id);
+
+            return;
+        }
+        $user->forceFill([
+            'last_login_at' => now(),
+            'last_login_ip' => request()->ip(),
+        ])->save();
+        app(UserAccessLogger::class)->record(UserAccessEvent::Login, $user);
     }
 
     /**

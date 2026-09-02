@@ -18,6 +18,9 @@ class Client extends Model
         'first_name',
         'last_name',
         'phone',
+        'whatsapp_opt_in',
+        'whatsapp_opt_in_at',
+        'whatsapp_opt_out_at',
         'email',
         'birth_date',
         'preferred_barber_id',
@@ -30,6 +33,9 @@ class Client extends Model
         return [
             'birth_date' => 'date',
             'is_active' => 'boolean',
+            'whatsapp_opt_in' => 'boolean',
+            'whatsapp_opt_in_at' => 'datetime',
+            'whatsapp_opt_out_at' => 'datetime',
         ];
     }
 
@@ -41,6 +47,21 @@ class Client extends Model
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function walkInEntries(): HasMany
+    {
+        return $this->hasMany(WalkInEntry::class);
+    }
+
+    public function whatsappMessages(): HasMany
+    {
+        return $this->hasMany(WhatsAppMessage::class);
+    }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
     }
 
     public function scopeSearch(Builder $query, ?string $search): Builder

@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => env('ADMIN_NAME', 'Administrador BarberControl'),
                 'role' => UserRole::Administrator,
+                'is_active' => true,
                 'email_verified_at' => now(),
                 'password' => env('ADMIN_PASSWORD', 'Cambiar123!'),
             ],

@@ -18,7 +18,14 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/tmp
 /vendor
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/runtime
+
+# Base de datos local
+/database/*.sqlite
+/database/*.sqlite3
+/database/*.db

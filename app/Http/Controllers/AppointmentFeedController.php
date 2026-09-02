@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AppointmentStatus;
+use App\Enums\UserRole;
 use App\Models\Appointment;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -24,11 +25,20 @@ class AppointmentFeedController extends Controller
         $canUpdate = $request->user()->can('create', Appointment::class);
         $rangeStart = CarbonImmutable::parse($data['start'])->setTimezone(config('app.timezone'));
         $rangeEnd = CarbonImmutable::parse($data['end'])->setTimezone(config('app.timezone'));
+        $currentBarberId = $request->user()->role === UserRole::Barber
+            ? $request->user()->barberProfile?->id
+            : null;
         $appointments = Appointment::query()
             ->with(['client:id,first_name,last_name', 'barber:id,display_name', 'service:id,name,duration_minutes'])
             ->where('starts_at', '<', $rangeEnd)
             ->where('ends_at', '>', $rangeStart)
-            ->when($data['barber_id'] ?? null, fn ($query, $barberId) => $query->where('barber_id', $barberId))
+            ->when(
+                $request->user()->role === UserRole::Barber,
+                fn ($query) => $currentBarberId
+                    ? $query->where('barber_id', $currentBarberId)
+                    : $query->whereRaw('1 = 0'),
+                fn ($query) => $query->when($data['barber_id'] ?? null, fn ($query, $barberId) => $query->where('barber_id', $barberId)),
+            )
             ->orderBy('starts_at')
             ->get();
 
@@ -37,6 +47,7 @@ class AppointmentFeedController extends Controller
                 AppointmentStatus::Completed,
                 AppointmentStatus::Cancelled,
                 AppointmentStatus::NoShow,
+                AppointmentStatus::Rescheduled,
             ], true);
 
             return [

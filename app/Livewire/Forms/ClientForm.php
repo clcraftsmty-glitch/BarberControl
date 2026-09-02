@@ -17,6 +17,8 @@ class ClientForm extends Form
 
     public string $phone = '';
 
+    public bool $whatsapp_opt_in = false;
+
     public ?string $email = null;
 
     public ?string $birth_date = null;
@@ -33,6 +35,7 @@ class ClientForm extends Form
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'min:7', 'max:25', 'regex:/^[0-9+() .\-]+$/'],
+            'whatsapp_opt_in' => ['boolean'],
             'email' => ['nullable', 'email:rfc', 'max:255', Rule::unique('clients', 'email')->ignore($this->client?->id)],
             'birth_date' => ['nullable', 'date', 'before_or_equal:today'],
             'preferred_barber_id' => [
@@ -51,6 +54,7 @@ class ClientForm extends Form
             'first_name' => 'nombre',
             'last_name' => 'apellidos',
             'phone' => 'teléfono',
+            'whatsapp_opt_in' => 'consentimiento de WhatsApp',
             'email' => 'correo electrónico',
             'birth_date' => 'fecha de nacimiento',
             'preferred_barber_id' => 'barbero preferido',
@@ -65,6 +69,7 @@ class ClientForm extends Form
         $this->first_name = $client->first_name;
         $this->last_name = $client->last_name;
         $this->phone = $client->phone;
+        $this->whatsapp_opt_in = (bool) $client->whatsapp_opt_in;
         $this->email = $client->email;
         $this->birth_date = $client->birth_date?->format('Y-m-d');
         $this->preferred_barber_id = $client->preferred_barber_id;
@@ -88,11 +93,21 @@ class ClientForm extends Form
     {
         $data = $this->validate();
 
+        $wasOptedIn = (bool) $this->client?->whatsapp_opt_in;
+        $isOptedIn = (bool) $data['whatsapp_opt_in'];
+
         return [
             ...$data,
             'first_name' => trim($data['first_name']),
             'last_name' => trim($data['last_name']),
             'phone' => trim($data['phone']),
+            'whatsapp_opt_in' => $isOptedIn,
+            'whatsapp_opt_in_at' => $isOptedIn
+                ? ($this->client?->whatsapp_opt_in_at ?? now())
+                : null,
+            'whatsapp_opt_out_at' => ! $isOptedIn && $wasOptedIn
+                ? now()
+                : ($isOptedIn ? null : $this->client?->whatsapp_opt_out_at),
             'email' => filled($data['email'] ?? null) ? mb_strtolower(trim($data['email'])) : null,
             'birth_date' => filled($data['birth_date'] ?? null) ? $data['birth_date'] : null,
             'preferred_barber_id' => $data['preferred_barber_id'] ?: null,

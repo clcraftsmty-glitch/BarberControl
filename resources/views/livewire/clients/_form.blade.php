@@ -47,6 +47,17 @@
     </div>
 
     <div class="sm:col-span-2">
+        <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+            <input type="checkbox" wire:model="form.whatsapp_opt_in" class="mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+            <span>
+                <span class="block text-sm font-bold text-slate-900">Autoriza notificaciones por WhatsApp</span>
+                <span class="mt-1 block text-xs leading-5 text-slate-600">El cliente acepta recibir confirmaciones, recordatorios, cambios de cita y tickets en el teléfono registrado. Puede retirar su autorización en cualquier momento.</span>
+            </span>
+        </label>
+        @error('form.whatsapp_opt_in') <p class="mt-1.5 text-sm text-red-600">{{ $message }}</p> @enderror
+    </div>
+
+    <div class="sm:col-span-2">
         <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
             <input type="checkbox" wire:model="form.is_active" class="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
             <span><span class="block text-sm font-semibold text-slate-800">Cliente activo</span><span class="mt-0.5 block text-xs text-slate-500">Los clientes inactivos permanecen en el historial y pueden consultarse.</span></span>

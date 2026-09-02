@@ -3,6 +3,7 @@
 namespace App\Livewire\Clients;
 
 use App\Models\Client;
+use App\Services\ClientHistoryService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -29,9 +30,9 @@ class Show extends Component
         session()->flash('status', 'Cliente desactivado correctamente.');
     }
 
-    public function render(): View
+    public function render(ClientHistoryService $history): View
     {
-        return view('livewire.clients.show')
+        return view('livewire.clients.show', $history->forClient($this->client, auth()->user()))
             ->layout('layouts.app');
     }
 }

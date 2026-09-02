@@ -4,6 +4,7 @@ namespace App\Livewire\Forms;
 
 use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
+use App\Models\BusinessSetting;
 use App\Services\AppointmentScheduler;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
@@ -67,19 +68,20 @@ class AppointmentForm extends Form
     public function clear(?string $startsAt = null, ?int $barberId = null): void
     {
         $this->reset();
-        $this->starts_at = $startsAt ?? now()->ceilMinutes(30)->format('Y-m-d\TH:i');
+        $duration = BusinessSetting::current()->default_appointment_duration_minutes;
+        $this->starts_at = $startsAt ?? now()->ceilMinutes($duration)->format('Y-m-d\TH:i');
         $this->barber_id = $barberId;
         $this->status = AppointmentStatus::Pending->value;
     }
 
-    public function store(AppointmentScheduler $scheduler): Appointment
+    public function store(AppointmentScheduler $scheduler, bool $allowOverride = false): Appointment
     {
-        return $scheduler->create($this->validatedData(), auth()->user());
+        return $scheduler->create($this->validatedData(), auth()->user(), $allowOverride);
     }
 
-    public function update(AppointmentScheduler $scheduler): Appointment
+    public function update(AppointmentScheduler $scheduler, bool $allowOverride = false): Appointment
     {
-        return $scheduler->update($this->appointment, $this->validatedData(), auth()->user());
+        return $scheduler->update($this->appointment, $this->validatedData(), auth()->user(), $allowOverride);
     }
 
     private function validatedData(): array

@@ -58,11 +58,36 @@ class Barber extends Model
         return $this->hasMany(Appointment::class);
     }
 
+    public function commissions(): HasMany
+    {
+        return $this->hasMany(Commission::class);
+    }
+
+    public function commissionSettlements(): HasMany
+    {
+        return $this->hasMany(CommissionSettlement::class);
+    }
+
+    public function commissionAdjustments(): HasMany
+    {
+        return $this->hasMany(CommissionAdjustment::class);
+    }
+
+    public function preferredWalkInEntries(): HasMany
+    {
+        return $this->hasMany(WalkInEntry::class, 'preferred_barber_id');
+    }
+
+    public function assignedWalkInEntries(): HasMany
+    {
+        return $this->hasMany(WalkInEntry::class, 'assigned_barber_id');
+    }
+
     public function calendarColor(): string
     {
         $palette = [
-            '#be123c', '#2563eb', '#059669', '#7c3aed', '#ea580c', '#0891b2',
-            '#4f46e5', '#c026d3', '#65a30d', '#dc2626', '#0284c7', '#9333ea',
+            '#8c6513', '#2563eb', '#059669', '#7c3aed', '#ea580c', '#0891b2',
+            '#4f46e5', '#c026d3', '#65a30d', '#475569', '#0284c7', '#9333ea',
         ];
 
         return $palette[($this->id - 1) % count($palette)];

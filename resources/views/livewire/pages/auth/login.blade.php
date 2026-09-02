@@ -15,6 +15,12 @@ new #[Layout('layouts.guest')] class extends Component
         $this->form->authenticate();
         Session::regenerate();
 
+        if (auth()->user()->role === \App\Enums\UserRole::Administrator && config('security.two_factor.enabled')) {
+            $this->redirectRoute(auth()->user()->hasConfirmedTwoFactor() ? 'two-factor.challenge' : 'two-factor.setup', navigate: true);
+
+            return;
+        }
+
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
 }; ?>

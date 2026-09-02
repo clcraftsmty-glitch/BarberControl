@@ -7,7 +7,7 @@
 }
 
 ::selection {
-    background: #be123c;
+    background: #8c6513;
     color: #fff;
 }
 
@@ -17,9 +17,9 @@
     --fc-button-border-color: #0f172a;
     --fc-button-hover-bg-color: #1e293b;
     --fc-button-hover-border-color: #1e293b;
-    --fc-button-active-bg-color: #be123c;
-    --fc-button-active-border-color: #be123c;
-    --fc-today-bg-color: #fff1f2;
+    --fc-button-active-bg-color: #8c6513;
+    --fc-button-active-border-color: #8c6513;
+    --fc-today-bg-color: #fbf8ec;
     font-size: 0.875rem;
 }
 

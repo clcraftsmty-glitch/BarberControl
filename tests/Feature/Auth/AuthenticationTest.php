@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Enums\UserAccessEvent;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Volt\Volt;
@@ -35,6 +36,11 @@ class AuthenticationTest extends TestCase
             ->assertRedirect(route('dashboard', absolute: false));
 
         $this->assertAuthenticated();
+        $this->assertNotNull($user->refresh()->last_login_at);
+        $this->assertDatabaseHas('user_access_logs', [
+            'user_id' => $user->id,
+            'event' => UserAccessEvent::Login->value,
+        ]);
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
@@ -52,6 +58,28 @@ class AuthenticationTest extends TestCase
             ->assertNoRedirect();
 
         $this->assertGuest();
+        $this->assertDatabaseHas('user_access_logs', [
+            'email' => $user->email,
+            'event' => UserAccessEvent::FailedLogin->value,
+        ]);
+    }
+
+    public function test_suspended_users_cannot_authenticate(): void
+    {
+        $user = User::factory()->create(['is_active' => false]);
+
+        Volt::test('pages.auth.login')
+            ->set('form.email', $user->email)
+            ->set('form.password', 'password')
+            ->call('login')
+            ->assertHasErrors(['form.email'])
+            ->assertNoRedirect();
+
+        $this->assertGuest();
+        $this->assertDatabaseHas('user_access_logs', [
+            'user_id' => $user->id,
+            'event' => UserAccessEvent::BlockedLogin->value,
+        ]);
     }
 
     public function test_navigation_menu_can_be_rendered(): void
@@ -82,5 +110,9 @@ class AuthenticationTest extends TestCase
             ->assertRedirect('/');
 
         $this->assertGuest();
+        $this->assertDatabaseHas('user_access_logs', [
+            'user_id' => $user->id,
+            'event' => UserAccessEvent::Logout->value,
+        ]);
     }
 }

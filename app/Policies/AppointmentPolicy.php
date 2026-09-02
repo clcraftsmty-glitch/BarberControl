@@ -27,4 +27,29 @@ class AppointmentPolicy
     {
         return $user->hasRole(UserRole::Administrator, UserRole::Receptionist);
     }
+
+    public function updateStatus(User $user, Appointment $appointment): bool
+    {
+        return $user->hasRole(UserRole::Administrator);
+    }
+
+    public function transition(User $user, Appointment $appointment): bool
+    {
+        if ($user->hasRole(UserRole::Administrator, UserRole::Receptionist)) {
+            return true;
+        }
+
+        return $user->role === UserRole::Barber
+            && $appointment->barber()->where('user_id', $user->id)->exists();
+    }
+
+    public function manageException(User $user, Appointment $appointment): bool
+    {
+        return $user->hasRole(UserRole::Administrator, UserRole::Receptionist);
+    }
+
+    public function registerPayment(User $user, Appointment $appointment): bool
+    {
+        return $user->hasRole(UserRole::Administrator, UserRole::Receptionist);
+    }
 }
